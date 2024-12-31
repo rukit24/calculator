@@ -49,6 +49,98 @@ const operate = (operator, a, b) => {
   return Number.isInteger(result) ? result : Math.round(result * 100) / 100;
 };
 
+const updateDisplay = (result, formula = "") => {
+  displayResult.textContent = result;
+  displayFormula.textContent = formula;
+};
+
+const clearAll = () => {
+  currentInput = "";
+  previousInput = "";
+  operator = "";
+  resultDisplayed = false;
+  updateDisplay("0", "");
+};
+
+const handleDigit = (buttonText) => {
+  if (resultDisplayed) {
+    currentInput = buttonText === "." ? "0." : buttonText; //case when input the "." and digit
+    // previousInput = "";
+    resultDisplayed = false;
+  } else {
+    currentInput += buttonText;
+  }
+  const formula =
+    operator && previousInput
+      ? `${previousInput} ${operator} ${currentInput} =`
+      : "";
+  updateDisplay(currentInput, formula);
+};
+
+const handleOperator = (buttonText) => {
+  if (!currentInput && previousInput) {
+    operator = buttonText;
+  } else if (currentInput) {
+    if (operator && previousInput) {
+      previousInput = operate(operator, previousInput, currentInput).toString();
+    } else {
+      previousInput = currentInput;
+    }
+    operator = buttonText;
+    currentInput = "";
+    updateDisplay(
+      previousInput,
+      `${previousInput} ${operator} ${currentInput}`
+    );
+  }
+};
+
+const handleEqual = (buttonText) => {
+  if (previousInput && currentInput && operator) {
+    result = operate(operator, previousInput, currentInput).toString();
+    resultDisplayed = true;
+    updateDisplay(result, `${previousInput} ${operator} ${currentInput} =`);
+    currentInput = result;
+    operator = "";
+    previousInput = "";
+  }
+};
+
+const handleSpecial = (buttonText) => {
+  switch (buttonText) {
+    case "AC":
+      clearAll();
+      break;
+    case "+/-":
+      currentInput = currentInput
+        ? (-parseFloat(currentInput)).toString()
+        : "0";
+      const formula =
+        previousInput && operator
+          ? `${previousInput} ${operator} ${currentInput}`
+          : "";
+      updateDisplay(currentInput, formula);
+      break;
+    default:
+      break;
+  }
+};
+
+function handleButtonClick(buttonText) {
+  if (!isNaN(buttonText) || buttonText === ".") {
+    // Handle digits and decimal point
+    handleDigit(buttonText);
+  } else if (["+", "-", "x", "÷", "%"].includes(buttonText)) {
+    // Handle operators
+    handleOperator(buttonText);
+  } else if (buttonText === "=") {
+    // Handle equals
+    handleEqual(buttonText);
+  } else {
+    handleSpecial(buttonText);
+  }
+}
+
 function setButton() {
   buttonRows.forEach((rowButtons, rowIndex) => {
     // Find the corresponding row by its class name
@@ -72,61 +164,6 @@ function setButton() {
       rowDiv.appendChild(button);
     });
   });
-}
-
-function handleButtonClick(buttonText) {
-  if (!isNaN(buttonText) || buttonText === ".") {
-    // Handle digits and decimal point
-    if (resultDisplayed) {
-      currentInput = buttonText === "." ? "0." : buttonText;
-      resultDisplayed = false;
-    } else {
-      currentInput += buttonText;
-    }
-    displayResult.textContent = currentInput;
-  } else if (["+", "-", "x", "÷", "%"].includes(buttonText)) {
-    // Handle operators
-    if (currentInput === "" && previousInput !== "") {
-      operator = buttonText; // Change the operator if needed
-    } else if (currentInput !== "") {
-      if (operator && previousInput !== "") {
-        previousInput = operate(
-          operator,
-          previousInput,
-          currentInput
-        ).toString();
-        displayFormula.textContent = `${previousInput} ${buttonText}`;
-      } else {
-        previousInput = currentInput;
-        displayFormula.textContent = `${previousInput} ${buttonText}`;
-      }
-      currentInput = "";
-      operator = buttonText;
-    }
-  } else if (buttonText === "=") {
-    // Handle equals
-    if (currentInput !== "" && previousInput !== "" && operator) {
-      const result = operate(operator, previousInput, currentInput);
-      displayFormula.textContent = `${previousInput} ${operator} ${currentInput} =`;
-      displayResult.textContent = result;
-      currentInput = result.toString();
-      previousInput = "";
-      operator = "";
-      resultDisplayed = true;
-    }
-  } else if (buttonText === "AC") {
-    // Handle clear
-    currentInput = "";
-    previousInput = "";
-    operator = "";
-    formula = "";
-    displayResult.textContent = "0";
-    displayFormula.textContent = "";
-  } else if (buttonText === "+/-") {
-    // Handle positive/negative toggle
-    currentInput = currentInput ? (-parseFloat(currentInput)).toString() : "";
-    displayResult.textContent = currentInput;
-  }
 }
 
 setButton();
