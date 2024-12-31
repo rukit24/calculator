@@ -14,7 +14,7 @@ Welcome to the **Calculator Project**! 🎉 This is not just a calculator—it's
 
 ## 🌟 Demo
 
-Check out the live version here: [Calculator Demo](#) _(Link your live demo!)_
+Check out the live version here: [Calculator Demo](#) _(https://rukit24.github.io/calculator/)_
 
 ![Calculator Screenshot](./Screenshot/2024-12-30_16-21-32.png)
 
